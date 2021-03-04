@@ -11,6 +11,7 @@ define([], function() {
         this.ctx = ctx;
         this.bird = bird;
         this.pipe = pipe;
+        this.pipeArr = [pipe];
         this.land = land;
         this.mountain = mountain; 
         this.width = ctx.width;
@@ -18,15 +19,21 @@ define([], function() {
         this.timebar = null; 
         //当前帧数   
         this.frame = 0;
+        //当前分数
+        this.score = 0;
     }
     /**
-     * @method init 启动游戏
+     * @method init 初始化
      * @for Game
      */
     Game.prototype.init = function() {
         this.startGame();
         this.bindEvent();   
     }
+    /**
+     * @method startGame 启动游戏
+     * @for Game
+     */
     Game.prototype.startGame = function() {
         //定时器间隔
         var interval = 1 / 60 * 1000;
@@ -42,7 +49,9 @@ define([], function() {
             //绘制小鸟儿
             this.renderBird();  
             //绘制管道
-            this.renderPipe();  
+            this.renderPipe();
+            //碰撞检测
+            this.checkCrush();  
         }, interval);
     }
     /**
@@ -102,18 +111,34 @@ define([], function() {
      * @for Game
      */
     Game.prototype.renderPipe = function() {
-        var pipe = this.pipe;
-        
-        //边界处理
-        if (pipe.x <= -pipe.pipeWidth) {
-            pipe.x = this.ctx.canvas.width;
-            pipe.pipeUpY = 10 + Math.random() * 230;
+        if (this.frame === 240) {
+            this.createPipe();
         }
-        //下管道高度
-        var pipeDownHeight = this.land.y - pipe.pipeUpY - pipe.interspace;
-        pipe.x -= pipe.speed / 60;
-        this.ctx.drawImage(pipe.imgDown, pipe.x, -pipe.pipeHeight + pipe.pipeUpY);
-        this.ctx.drawImage(pipe.imgUp, 0, 0, pipe.pipeWidth, pipeDownHeight, pipe.x, pipe.pipeUpY + pipe.interspace, pipe.pipeWidth, pipeDownHeight);
+        for (var i = 0; i < this.pipeArr.length; i++) {
+            var pipe = this.pipeArr[i];
+        
+            //边界处理
+            if (pipe.x <= -pipe.pipeWidth) {
+                pipe.x = this.ctx.canvas.width;
+            }
+            //下管道高度
+            var pipeDownHeight = this.land.y - pipe.pipeUpY - pipe.interspace;
+            pipe.x -= pipe.speed / 60;
+            this.ctx.drawImage(pipe.imgDown, pipe.x, -pipe.pipeHeight + pipe.pipeUpY);
+            this.ctx.drawImage(pipe.imgUp, 0, 0, pipe.pipeWidth, pipeDownHeight, pipe.x, pipe.pipeUpY + pipe.interspace, pipe.pipeWidth, pipeDownHeight);
+            if(Math.round(pipe.x) == this.bird.x - pipe.pipeWidth) {
+                this.score++;
+                console.log(this.score);
+            }
+        }
+    }
+    /**
+     * @method createPipe 创建管道
+     * @for Game
+     */
+    Game.prototype.createPipe = function() {
+        pipe = this.pipeArr[0].createPipe();
+        this.pipeArr.push(pipe);
     }
     /**
      * @method bindEvent 事件绑定
@@ -123,6 +148,70 @@ define([], function() {
         this.ctx.canvas.onclick = () => {
             this.bird.flyUp();
         }
+    }
+    /**
+     * @method checkCrush 碰撞处理
+     * @for Game
+     */
+    Game.prototype.checkCrush = function() {
+        
+        var birdX = this.bird.x;
+        var birdY = this.bird.y;
+        // console.log(birdY);
+        // this.ctx.strokeStyle = 'red';
+        // this.ctx.lineWidth = 5;
+        // this.ctx.beginPath();
+        // this.ctx.moveTo(birdX, birdY);
+        // this.ctx.lineTo(birdX, 200);
+        // this.ctx.closePath();
+        // this.ctx.stroke();
+        for (var i = 0; i < this.pipeArr.length; i++) {
+            //管道左侧边界
+            var pipeLeftX = this.pipeArr[i].x;
+            //管道右侧边界
+            var pipeRightX = this.pipeArr[i].x + this.pipeArr[i].pipeWidth;
+            //管道下方边界
+            var pipeDownY = this.pipeArr[i].pipeDownY;
+            //管道上方边界
+            var pipeUpY = this.pipeArr[i].pipeUpY;
+            //地面边界
+            var landY = this.land.y;
+            //判断碰撞
+            if (birdX >= pipeLeftX - this.bird.img.width / 4 && birdX <= pipeRightX + this.bird.img.width / 4) {
+                if (pipeDownY - birdY <= this.bird.img.height / 16 || birdY - pipeUpY <= this.bird.img.height / 16) {
+                    this.gameOver();               
+                }
+            }
+            else if(landY - birdY <= this.bird.img.height / 16) {
+                this.gameOver();
+            }
+        }        
+    }
+     /**
+     * @method reset 重置
+     * @for Game
+     */
+    Game.prototype.reset = function() {
+        //当前帧数   
+        this.frame = 0;
+        //当前分数
+        this.score = 0;
+        this.pipeArr[0].reset();
+        if (this.pipeArr.length == 2) {
+            this.pipeArr.pop();
+        }
+        this.bird.reset();
+    }
+    /**
+     * @method gameOver 游戏结束
+     * @for Game
+     */
+    Game.prototype.gameOver = function() {
+        alert("游戏结束, 得分：" + this.score);
+        clearInterval(this.timebar);
+        
+        this.reset();
+        this.init();
     }
     return Game;
 });

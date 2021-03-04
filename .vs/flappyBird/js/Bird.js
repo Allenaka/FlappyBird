@@ -50,6 +50,10 @@ define([],function() {
         else {
             //向上飞
             this.angle = -Math.PI / 180 * this.speed * 2;
+            //上边界
+            if (this.y < 0) {
+                this.y = this.img.height / 4;
+            }
             this.speed--;
             if (this.speed === 0) {
                 this.direction = true;
@@ -67,6 +71,18 @@ define([],function() {
         this.direction = false;
         //向上初速度
         this.speed = 10;
+    }
+    /**
+     * @method reset 重置
+     * @for Bird
+     */
+    Bird.prototype.reset = function() {
+        this.index = 0;
+        this.y = 100;
+        this.speed = 0;
+        this.acc = 10;
+        this.direction = true;
+        this.angle = 0;
     }
     return Bird;
 });

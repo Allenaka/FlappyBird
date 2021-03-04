@@ -11,6 +11,7 @@ define([], function() {
         this.imgUp = imgUp;
         this.imgDown = imgDown;
         this.speed = speed;
+        this.width = x;
         this.x = x;
         //上下管道间隔
         this.interspace = 150;
@@ -20,6 +21,24 @@ define([], function() {
         this.pipeWidth = imgUp.width;
         //随机上管道高度
         this.pipeUpY = 10 + Math.random() * 230;
+        //下管道高度
+        this.pipeDownY = this.pipeUpY + this.interspace;
+    }
+    /**
+     * @method createPipe 创建管道实例
+     * @for Pipe
+     */
+    Pipe.prototype.createPipe = function() {
+        return new Pipe(this.imgUp, this.imgDown, this.speed, this.width);
+    }
+    /**
+     * @method reset 重置
+     * @for Pipe
+     */
+    Pipe.prototype.reset = function() {
+        this.x = this.width;
+        this.pipeUpY = 10 + Math.random() * 230;
+        this.pipeDownY = this.pipeUpY + this.interspace;
     }
     return Pipe;
 });

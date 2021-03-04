@@ -58,7 +58,7 @@ require([
         canvas.height = height;
         //创建Bird、Pipe、Background实例对象，并传递给Game类
         var bird = new Bird(arr.slice(0,3), 100, 100);
-        var pipe = new Pipe(arr[6], arr[7], 50, 200);
+        var pipe = new Pipe(arr[6], arr[7], 50, width);
         var land = new Background(arr[5], 50, 0, 400);
         var mountain = new Background(arr[3], 10, 0, 0);
         //传递给Game
