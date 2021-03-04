@@ -12,6 +12,14 @@ define([], function() {
         this.imgDown = imgDown;
         this.speed = speed;
         this.x = x;
+        //上下管道间隔
+        this.interspace = 150;
+        //管道长度
+        this.pipeHeight = imgUp.height;
+        //管道宽度
+        this.pipeWidth = imgUp.width;
+        //随机上管道高度
+        this.pipeUpY = 10 + Math.random() * 230;
     }
     return Pipe;
 });

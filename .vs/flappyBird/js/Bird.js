@@ -43,7 +43,7 @@ define([],function() {
         if (this.direction) {
             //向下飞
             this.angle = Math.PI / 180 * this.speed * 2;
-            this.acc ++;
+            // this.acc++;
             this.speed += this.acc * (1 / 60);
             this.y += this.speed;
         }
@@ -67,7 +67,6 @@ define([],function() {
         this.direction = false;
         //向上初速度
         this.speed = 10;
-        this.acc = 0;
     }
     return Bird;
 });

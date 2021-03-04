@@ -25,23 +25,9 @@ define([], function() {
      */
     Game.prototype.init = function() {
         this.startGame();
-        this.bindEvent();
-        // //随机生成上管道高度
-        // var y = 50 + Math.floor((Math.random() * 200));
-        // ctx.drawImage(pipe.imgDown, pipe.x, -pipeHeight + y);
-        // ctx.drawImage(pipe.imgUp, pipe.x, y + interspace);    
+        this.bindEvent();   
     }
     Game.prototype.startGame = function() {
-        //数据存储
-        var bird = this.bird;
-        var mountain = this.mountain;
-        var pipe = this.pipe;
-        var land = this.land;
-        var ctx = this.ctx;
-        var pipeWidth = pipe.imgUp.width;
-        var pipeHeight = pipe.imgUp.height;
-        //上下管道间隔
-        var interspace = 100;
         //定时器间隔
         var interval = 1 / 60 * 1000;
         //启动定时器绘制画面
@@ -54,7 +40,9 @@ define([], function() {
             this.renderMountain();
             this.renderLand();      
             //绘制小鸟儿
-            this.renderBird();    
+            this.renderBird();  
+            //绘制管道
+            this.renderPipe();  
         }, interval);
     }
     /**
@@ -96,15 +84,41 @@ define([], function() {
     Game.prototype.renderBird = function() {
         var bird = this.bird;
         this.ctx.save();
+        //改变坐标系
         this.ctx.translate(bird.x, bird.y);
+        //旋转坐标系
         this.ctx.rotate(bird.angle);
         this.ctx.drawImage(bird.img, -bird.img.width / 2, -bird.img.height / 2);
+        //每10帧切换一张小鸟图片
         if (this.frame % 10 === 0) {
             bird.fly();           
         }
+        //下落
         bird.flyDown();
         this.ctx.restore();
     }
+    /**
+     * @method renderPipe 绘制管道
+     * @for Game
+     */
+    Game.prototype.renderPipe = function() {
+        var pipe = this.pipe;
+        
+        //边界处理
+        if (pipe.x <= -pipe.pipeWidth) {
+            pipe.x = this.ctx.canvas.width;
+            pipe.pipeUpY = 10 + Math.random() * 230;
+        }
+        //下管道高度
+        var pipeDownHeight = this.land.y - pipe.pipeUpY - pipe.interspace;
+        pipe.x -= pipe.speed / 60;
+        this.ctx.drawImage(pipe.imgDown, pipe.x, -pipe.pipeHeight + pipe.pipeUpY);
+        this.ctx.drawImage(pipe.imgUp, 0, 0, pipe.pipeWidth, pipeDownHeight, pipe.x, pipe.pipeUpY + pipe.interspace, pipe.pipeWidth, pipeDownHeight);
+    }
+    /**
+     * @method bindEvent 事件绑定
+     * @for Game
+     */
     Game.prototype.bindEvent = function() {       
         this.ctx.canvas.onclick = () => {
             this.bird.flyUp();
